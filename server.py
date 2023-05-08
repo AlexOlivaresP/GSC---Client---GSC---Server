@@ -29,7 +29,7 @@ def descifrado(texto,desplazamiento):
 def linea():
     return "Servidor en linea 192.168.1.75 en puerto 3312"
 
-server = xmlrpc.server.SimpleXMLRPCServer(("192.168.1.75", 3312))
+server = xmlrpc.server.SimpleXMLRPCServer(("192.168.1.183", 3313))
 print("Esperando consultas de cifrado...")
 
 server.register_function(cifrado, "cifrado")
