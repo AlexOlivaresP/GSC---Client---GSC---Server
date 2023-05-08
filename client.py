@@ -58,7 +58,7 @@ def serverStat():
     logging.debug(f"TESTEANDO LOS SERVIDORES ...")
     #print("CONECTANDO CON VM...")
     #http://
-    proxy = xmlrpc.client.ServerProxy("http://192.168.56.1:3312/RPC2")
+    proxy = xmlrpc.client.ServerProxy("http://192.168.1.183:3312/RPC2")
     logging.debug("Conectado para testear")
     libres = proxy.libres()
     print(f"Servidores libres: {libres}")
@@ -66,33 +66,33 @@ def serverStat():
 def solicitud(texto,desplazamiento):
     # Crear proxy
     logging.debug(f"Solicitando servidor al gsc desde el cliente ...")
-    proxy = xmlrpc.client.ServerProxy("http://192.168.56.1:3312/RPC2")
-    logging.debug("Conectado")
+    proxy = xmlrpc.client.ServerProxy("http://192.168.1.183:3312/RPC2")
+    logging.debug("Conectado al gsc para solicitar servidor")
     resultado = proxy.solicitud(texto,desplazamiento)
     return resultado
     #print(f"Servidores libres: {libres}")
 
-def gsc(texto,desplazamiento):
-    # Crear proxy
-    logging.debug("Conectando con GSC...")
-    #print("CONECTANDO CON VM...")
-    #http://192.168.1.75:3312/RPC2
-    proxy = xmlrpc.client.ServerProxy("http://192.168.56.1:3312/RPC2")
-    #print("CONECTADO CON VM...\n")
-    # Llamar función del servidor
-    resultado = proxy.solicitud(texto,desplazamiento)
-    # Imprimir resultado
-    return resultado
+# def gsc(texto,desplazamiento):
+#     # Crear proxy
+#     logging.debug("Conectando con GSC...")
+#     #print("CONECTANDO CON VM...")
+#     #http://192.168.1.75:3312/RPC2
+#     proxy = xmlrpc.client.ServerProxy("http://192.168.56.1:3312/RPC2")
+#     #print("CONECTADO CON VM...\n")
+#     # Llamar función del servidor
+#     resultado = proxy.solicitud(texto,desplazamiento)
+#     # Imprimir resultado
+#     return resultado
 
 
-#hola = serverStat()
+hola = serverStat()
 
 #Se lee el texto a cifrar
 logging.debug("Iniciando programa")
 logging.debug("Leyendo archivo")
 try:
     #Se abre el archivo con codificación utf-8
-    with open("P4/texto copy.txt", "r") as archivo:
+    with open("texto.txt", "r") as archivo:
         Frase = archivo.read()
 except (FileNotFoundError, IOError) as e:
     logging.error(f"Error al abrir el archivo: {e}")
@@ -101,7 +101,7 @@ Desplazamiento = int(input("Ingrese el desplazamiento: "))
 print("\n\n")
 
 #Se divide el texto en 2
-logging.debug("Dividiendo texto en 5")
+logging.debug("Dividiendo texto en 2")
 mitad = len(Frase)//2
 mitad1 = Frase[:mitad]
 mitad2 = Frase[mitad:]
@@ -117,13 +117,22 @@ inicio = time.time()
 
 # Ejecutar la función en un hilo y obtener una instancia de Future
 
-logging.debug("Ejecutando hilo virtual")
+logging.debug("PRIMER CLIENTE")
 mi_hilo = ejecutaHilo.submit(solicitud, mitad1, Desplazamiento)
 
-logging.debug("Ejecutando hilo local")
-mi_hilo2 = ejecutaHilo.submit(cifrado, mitad2, Desplazamiento)
+# ##TEST DEL HILO 
+# resultado = mi_hilo.result()
+# print(resultado)
 
-# Obtener el resultado de la función
+
+logging.debug("SEGUNDO CLIENTE")
+mi_hilo2 = ejecutaHilo.submit(solicitud, mitad2, Desplazamiento)
+
+# ###TEST DEL HILO
+# resultado2 = mi_hilo2.result()
+# print(resultado2)
+
+#Obtener el resultado de la función
 
 logging.debug("Obteniendo resultado de hilo virtual")
 resultado = mi_hilo.result()
@@ -133,12 +142,12 @@ resultado2= mi_hilo2.result()
 
 fin = time.time()
 tiempo_total = fin - inicio
-print("Tiempo de ejecución concurrente: ", tiempo_total, "segundos")
+print("Tiempo de solicitud: ", tiempo_total, "segundos")
 logging.debug("Fin de executor de hilos")
 
 #Se guarda el texto cifrado
 try:
-    with open("P4/cifrado.txt", "w") as archivo:
+    with open("cifrado.txt", "w") as archivo:
         archivo.write(resultado+resultado2)
     logging.debug("Archivo Cifrados.txt guardado con exito")
 except (FileNotFoundError, IOError) as e:
@@ -155,7 +164,7 @@ print("Tiempo de ejecución local: ", tiempoTotalSolo, "segundos")
 
 
 try:
-    with open("P4/descifrado.txt", "w") as archivo:
+    with open("descifrado.txt", "w") as archivo:
         archivo.write(descif)
     logging.debug("Archivo descifrado.txt guardado con exito")
 except (FileNotFoundError, IOError) as e:
